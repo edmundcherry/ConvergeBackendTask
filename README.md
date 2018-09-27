@@ -10,3 +10,7 @@ I acheive this using the following commands.
 > mongod
 
 > sudo service mongodb start
+
+The bulk of the task is solved in the route_api.js file.
+
+If you have any questions or find any mistakes please feel free to let me know. 
