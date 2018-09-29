@@ -49,7 +49,7 @@ SensorData.find({
 //Update in db and show the updated entry
 SensorData.findByIdAndUpdate({_id: req.params.id}, req.body).then(function(){
   SensorData.findOne({_id: req.params.id}).then(function(sensor_data){
-    res.send(sensor_data);
+   res.send(sensor_data);
     res.status(204)
     });
   })
@@ -80,27 +80,44 @@ router.get('/convergeio/', function(req, res, next){
 });
 
 //-------------------------EMAILS TO CLIENT----------------------------//
-var toohigh = 70;
-var toolow = 20; // General constraints of sensors for testing
+var toohigh = 49;
+var toolow = 9; // General constraints of sensors for testing
 var message =''; // The message to be emailed
+var infostring;
 
 // Search our database for values which are outside these constraints
 SensorData.find({
 $and : [
   {$or: [{value: {$gt: toohigh}}, {value:{$lt: toolow}}]},
-  {sensorId: 1001}
+  {$or: [{sensorId: 1001}, {sensorId: 1002}, {sensorId: 1003}]}
        ]
 }).countDocuments().then(function(body){
  if (!body) //If we don't count a warning value, we email saying all is in order
   {
-    message = 'Just an update, all the sensors are in order';
+    message = ('Just an update, sensor are in order');
     sendmessage(message); // Calling the email module
     console.log('Update, all good');
     return;
   }
   else //If not email a warning - this can be modified to include exact values
   {
-    message = 'Warning sensor has measured dangerous value';
+
+                  //----Shows the irregular values-----//
+    SensorData.find({
+    $and : [
+      {$or: [{value: {$gt: toohigh}}, {value:{$lt: toolow}}]},
+      {$or: [{sensorId: 1001}, {sensorId: 1002}, {sensorId: 1003}]}
+           ]
+    }).then(function(warning){
+      console.log(warning);
+      infostring = warning;
+      JSON.stringify(infostring);
+
+    });
+                    //----------------------------//
+
+
+    message = ('Warning sensor  has measured dangerous value:');
     console.log('Warning dangerous sensor');
     sendmessage(message);
   }
